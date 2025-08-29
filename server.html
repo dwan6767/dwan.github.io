@@ -1,224 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ESP32 Live – DwanCraft</title>
-  <link href="https://fonts.cdnfonts.com/css/minecraftia" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>IoT Server Registry</title>
   <style>
-    :root{
-      --black:#000;
-      --blue:#002244;
-      --blue-strong:#0044cc;
-      --red:#880000;
-      --gold:#d4af37;
-      --white:#f0f0f0;
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      margin: 0;
+      padding: 20px;
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:'Minecraftia', monospace;
-      background:var(--black);
-      color:var(--white);
-      text-shadow:2px 2px #000;
+    h1 { color: #66ccff; }
+    .server-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
     }
-    header{
-      background:var(--blue);
-      border-bottom:5px solid var(--red);
-      padding:18px 16px;
-      text-align:center;
+    .server {
+      background: #222;
+      border: 2px solid #444;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
     }
-    h1{margin:0;color:var(--gold);font-size:30px}
-    main{
-      max-width:900px;margin:24px auto;padding:0 16px;
+    .server a {
+      color: #ffcc00;
+      font-weight: bold;
+      text-decoration: none;
     }
-    .card{
-      background:#0b0b1a;border:3px solid var(--blue-strong);
-      border-radius:8px;padding:16px;margin-bottom:16px;
-      box-shadow: inset -4px -4px #330000, inset 4px 4px #004488;
+    .server a:hover { color: #ff4444; }
+
+    .add-form {
+      background: #1a1a1a;
+      border: 2px solid #444;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 8px;
     }
-    .card h2{margin:0 0 12px;color:#66aaff}
-    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-    input[type="text"]{
-      flex:1;min-width:240px;
-      background:#111;color:var(--white);
-      border:2px solid var(--red);border-radius:6px;
-      padding:10px 12px;outline:none;
+    .add-form input {
+      padding: 6px;
+      margin: 5px;
+      border-radius: 4px;
+      border: 1px solid #555;
+      background: #000;
+      color: #eee;
     }
-    button{
-      background:var(--blue-strong);color:#fff;border:none;
-      padding:10px 14px;border-radius:6px;cursor:pointer;
-      box-shadow:0 0 0 3px #000 inset;transition:0.15s;
+    .add-form button {
+      padding: 6px 12px;
+      background: #66ccff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
     }
-    button:hover{box-shadow:0 0 0 3px var(--gold) inset}
-    .status{
-      display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:12px;margin-top:12px;
-    }
-    .stat{
-      background:#111;border:2px solid var(--red);border-radius:6px;padding:10px;
-    }
-    .badge{
-      display:inline-block;background:var(--red);padding:4px 8px;border-radius:4px;margin-left:8px;
-    }
-    .ok{background:#145214}
-    .warn{background:#8a6d00}
-    .err{background:#7a1515}
-    .mono{font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
-    .muted{opacity:.8}
-    a{color:#ff5555;text-decoration:none}
-    a:hover{color:var(--gold)}
-    .small{font-size:12px}
+    .add-form button:hover { background: #ff4444; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>ESP32 Live Status</h1>
-  </header>
+  <h1>IoT Server Registry</h1>
+  <p>Pick a server from the registry or register your own:</p>
 
-  <main>
-    <!-- Where to read the current ngrok URL -->
-    <div class="card">
-      <h2>Ngrok Tunnel</h2>
-      <p class="muted small">This page loads <span class="mono">esp32url.json</span> to discover your current tunnel URL.</p>
-      <div class="row" style="margin-top:10px;">
-        <input id="ngrokUrl" type="text" placeholder="https://xxxx.ngrok-free.app" />
-        <button id="saveUrlBtn" title="Use this URL without editing esp32url.json">Use Temporarily</button>
-        <button id="reloadBtn">Reload from esp32url.json</button>
-      </div>
-      <div style="margin-top:10px" class="small">
-        Current source: <span id="sourceLabel" class="badge warn">loading…</span>
-      </div>
+  <div class="server-list" id="servers">
+    <div class="server">
+      <a href="https://dd89d6ace634.ngrok-free.app" target="_blank">
+        ESP32 at DWAN's Home
+      </a>
     </div>
+    <div class="server">
+      <a href="https://example2.ngrok-free.app" target="_blank">
+        Friend’s ESP Weather Station
+      </a>
+    </div>
+  </div>
 
-    <!-- Live data -->
-    <div class="card">
-      <h2>Live Data <span id="connBadge" class="badge err">offline</span></h2>
-      <div class="status">
-        <div class="stat"><div class="muted small">Uptime</div><div id="uptime" class="mono">—</div></div>
-        <div class="stat"><div class="muted small">Wi-Fi RSSI</div><div id="rssi" class="mono">—</div></div>
-        <div class="stat"><div class="muted small">Free Heap</div><div id="heap" class="mono">—</div></div>
-        <div class="stat"><div class="muted small">Version</div><div id="fw" class="mono">—</div></div>
-      </div>
-      <div style="margin-top:12px" class="small">
-        Last update: <span id="lastUpdate" class="mono">—</span> · Endpoint: <span id="endpoint" class="mono">—</span>
-      </div>
-    </div>
-
-    <!-- Raw JSON -->
-    <div class="card">
-      <h2>Raw JSON</h2>
-      <pre id="raw" class="mono" style="white-space:pre-wrap;word-break:break-word;margin:0">—</pre>
-    </div>
-
-    <div class="small muted">
-      Tip: Every time you restart ngrok, update <span class="mono">esp32url.json</span> in this repo to the new URL.<br/>
-      If you get CORS errors, make sure your ESP32 response includes:
-      <span class="mono">Access-Control-Allow-Origin: *</span>
-    </div>
-  </main>
+  <div class="add-form">
+    <h2>Register a New Server</h2>
+    <input type="text" id="name" placeholder="Server Name" />
+    <input type="url" id="url" placeholder="Server URL (https://...)" />
+    <button onclick="addServer()">Add</button>
+  </div>
 
   <script>
-    // ---------- Settings ----------
-    const URL_CONFIG_FILE = "esp32url.json";  // served by GitHub Pages from your repo
-    const STATUS_PATH = "/status";            // ESP endpoint to fetch
-    const POLL_MS = 3000;                     // refresh interval
-    // ------------------------------
+    function addServer() {
+      const name = document.getElementById("name").value;
+      const url = document.getElementById("url").value;
 
-    let activeBaseUrl = null; // can be overridden by the input field
+      if (!name || !url) return alert("Please enter both name and URL.");
 
-    const $ = (id)=>document.getElementById(id);
-    const sourceLabel = $("sourceLabel");
-    const connBadge = $("connBadge");
-    const endpointSpan = $("endpoint");
-    const lastUpdate = $("lastUpdate");
-    const ngrokUrlInput = $("ngrokUrl");
+      const container = document.getElementById("servers");
+      const div = document.createElement("div");
+      div.className = "server";
+      div.innerHTML = `<a href="${url}" target="_blank">${name}</a>`;
+      container.appendChild(div);
 
-    $("reloadBtn").addEventListener("click", loadUrlFromConfig);
-    $("saveUrlBtn").addEventListener("click", ()=>{
-      const v = ngrokUrlInput.value.trim();
-      if(!v){alert("Enter a URL first.");return;}
-      activeBaseUrl = v.replace(/\/+$/,"");
-      sourceLabel.textContent = "manual override";
-      sourceLabel.className = "badge ok";
-      endpointSpan.textContent = activeBaseUrl + STATUS_PATH;
-    });
-
-    // Allow ?url= override in the address bar
-    (function readQuery(){
-      const u = new URL(location.href);
-      const q = u.searchParams.get("url");
-      if(q){
-        activeBaseUrl = q.replace(/\/+$/,"");
-        ngrokUrlInput.value = activeBaseUrl;
-        sourceLabel.textContent = "query param";
-        sourceLabel.className = "badge ok";
-      }
-    })();
-
-    async function loadUrlFromConfig(){
-      try{
-        sourceLabel.textContent = "loading…";
-        sourceLabel.className = "badge warn";
-        const res = await fetch(URL_CONFIG_FILE, {cache:"no-store"});
-        if(!res.ok) throw new Error("config fetch failed: " + res.status);
-        const data = await res.json();
-        if(!data.url) throw new Error("no 'url' field in esp32url.json");
-        activeBaseUrl = String(data.url).replace(/\/+$/,"");
-        ngrokUrlInput.value = activeBaseUrl;
-        sourceLabel.textContent = "esp32url.json";
-        sourceLabel.className = "badge ok";
-      }catch(err){
-        console.error(err);
-        sourceLabel.textContent = "config error";
-        sourceLabel.className = "badge err";
-      }
-      endpointSpan.textContent = activeBaseUrl ? (activeBaseUrl + STATUS_PATH) : "—";
+      // reset inputs
+      document.getElementById("name").value = "";
+      document.getElementById("url").value = "";
     }
-
-    async function poll(){
-      if(!activeBaseUrl){ setOffline("No URL yet"); return; }
-      try{
-        const res = await fetch(activeBaseUrl + STATUS_PATH, {cache:"no-store"});
-        if(!res.ok) throw new Error("HTTP "+res.status);
-        const data = await res.json();
-
-        // Update UI
-        connBadge.textContent = "online";
-        connBadge.className = "badge ok";
-        $("raw").textContent = JSON.stringify(data, null, 2);
-
-        $("uptime").textContent = formatUptime(data.uptime ?? data.uptime_sec ?? 0);
-        $("rssi").textContent   = (data.rssi ?? "—") + (data.rssi ? " dBm" : "");
-        $("heap").textContent   = data.free_heap ?? data.heap ?? "—";
-        $("fw").textContent     = data.version ?? data.fw ?? "—";
-        lastUpdate.textContent  = new Date().toLocaleString();
-
-      }catch(err){
-        console.debug("poll error:", err);
-        setOffline(err.message.includes("Failed to fetch") ? "Network/CORS error" : "Offline");
-      }
-    }
-
-    function setOffline(reason){
-      connBadge.textContent = "offline";
-      connBadge.className = "badge err";
-      $("raw").textContent = `— (${reason})`;
-      lastUpdate.textContent = new Date().toLocaleString();
-    }
-
-    function formatUptime(sec){
-      sec = Number(sec)||0;
-      const h = Math.floor(sec/3600);
-      const m = Math.floor((sec%3600)/60);
-      const s = Math.floor(sec%60);
-      return `${h}h ${m}m ${s}s`;
-    }
-
-    // Kick off
-    if(!activeBaseUrl) loadUrlFromConfig();
-    setInterval(poll, POLL_MS);
-    poll();
   </script>
 </body>
 </html>
