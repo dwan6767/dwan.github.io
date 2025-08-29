@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flappy Bird Clone</title>
+  <style>
+    body {
+      margin: 0;
+      background: #70c5ce;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    canvas {
+      background: #70c5ce;
+      border: 4px solid #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="320" height="480"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let birdY = 100, birdVY = 0, gravity = 0.03, jump = -1.5;
+    let pipes = [];
+    let frame = 0, score = 0;
+
+    document.addEventListener("keydown", () => birdVY = jump);
+    document.addEventListener("click", () => birdVY = jump);
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Bird
+      birdVY += gravity;
+      birdY += birdVY;
+      ctx.fillStyle = "yellow";
+      ctx.fillRect(50, birdY, 20, 20);
+
+      // Pipes
+      if (frame % 90 === 0) {
+        let gapY = Math.floor(Math.random() * 200) + 70;
+        pipes.push({ x: 320, y: gapY });
+      }
+      ctx.fillStyle = "green";
+      pipes.forEach((pipe, i) => {
+        pipe.x -= 1;
+        ctx.fillRect(pipe.x, 0, 30, pipe.y - 60); // top pipe
+        ctx.fillRect(pipe.x, pipe.y + 60, 30, canvas.height); // bottom pipe
+
+        // Collision
+        if (50 < pipe.x + 30 && 50 + 20 > pipe.x &&
+            (birdY < pipe.y - 60 || birdY + 20 > pipe.y + 60)) {
+          alert("Game Over! Score: " + score);
+          document.location.reload();
+        }
+
+        // Passed pipe
+        if (pipe.x === 50) score++;
+      });
+
+      // Score
+      ctx.fillStyle = "black";
+      ctx.font = "20px Arial";
+      ctx.fillText("Score: " + score, 10, 20);
+
+      // Fall off screen
+      if (birdY > canvas.height || birdY < 0) {
+        alert("Game Over! Score: " + score);
+        document.location.reload();
+      }
+
+      frame++;
+      requestAnimationFrame(gameLoop);
+    }
+    gameLoop();
+  </script>
+</body>
+</html>
+

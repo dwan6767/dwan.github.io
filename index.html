@@ -1,13 +1,137 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Welcome bro to this fancy website </title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dwaipayan Shikari (DWAN) – Portfolio</title>
+  <link href="https://fonts.cdnfonts.com/css/minecraftia" rel="stylesheet">
+  <style>
+    :root{
+      --black:#000;
+      --blue:#002244;
+      --blue-strong:#0044cc;
+      --red:#880000;
+      --gold:#d4af37;
+      --white:#f0f0f0;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Minecraftia', monospace;
+      background:var(--black);
+      color:var(--white);
+      text-shadow:2px 2px #000;
+    }
+    header{
+      background:var(--blue);
+      border-bottom:5px solid var(--red);
+      padding:18px 16px;
+      text-align:center;
+    }
+    h1{margin:0;color:var(--gold);font-size:28px}
+    nav{
+      background:var(--red);
+      display:flex;justify-content:center;gap:20px;
+      padding:10px;
+    }
+    nav a{
+      color:var(--white);text-decoration:none;
+      background:var(--blue-strong);padding:6px 12px;
+      border-radius:4px;
+    }
+    nav a:hover{background:var(--gold);color:var(--black)}
+    main{
+      max-width:1000px;margin:24px auto;padding:0 16px;
+    }
+    .card{
+      background:#0b0b1a;
+      border:3px solid var(--blue-strong);
+      border-radius:8px;
+      padding:16px;margin-bottom:16px;
+    }
+    .card h2{margin-top:0;color:#66aaff}
+
+    /* Project Blocks */
+    .projects {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+    .project-block {
+      background:#1a1a2a;
+      border:3px solid var(--gold);
+      border-radius:8px;
+      padding:12px;
+      text-align:center;
+      transition: transform 0.15s;
+    }
+    .project-block:hover {
+      transform: scale(1.05);
+      background:#222244;
+      border-color: var(--red);
+    }
+    .project-block a {
+      color: var(--gold);
+      text-decoration:none;
+      font-weight:bold;
+      display:block;
+      margin-bottom:6px;
+    }
+    .project-block p {
+      font-size: 13px;
+      color: var(--white);
+    }
+  </style>
 </head>
 <body>
-  <h1>Yo, welcome to my Fancy site lol!</h1>
-  <p>I am a interested in Computer and Hardware, I occassionaly try to build intesting projects(atleast to me)</p>
- <input type="image" src="my.jpg" alt="Submit" width="48" height="48">
-  
-  <a href="https://github.com/dwan6767/">dwangithub</a>
+  <header>
+    <h1>Dwaipayan Shikari (DWAN)</h1>
+    <p>Tinkerer • Explorer • Builder</p>
+  </header>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="server.html">IOT server</a>
+    <a href="flappy.html">Games</a>
+  </nav>
+
+  <main>
+    <div class="card">
+      <h2>About Me</h2>
+      <p>I am not a “professional,” just a curious <strong>tinkerer and explorer</strong>.  
+      I love embedded systems, hardware hacking, and making weird things work.</p>
+    </div>
+
+    <div class="card">
+      <h2>Projects</h2>
+      <div class="projects">
+        <div class="project-block">
+          <a href="https://github.com/dwan6767/digitalBuckcontroller">digitalBuckcontroller</a>
+          <p>Digital buck converter controller on ATtiny85.</p>
+        </div>
+        <div class="project-block">
+          <a href="https://github.com/dwan6767/serialpuny">serialpuny</a>
+          <p>UART bit-banging library for ATtiny.</p>
+        </div>
+        <div class="project-block">
+          <a href="https://github.com/dwan6767/lowkeyssd1306">lowkeyssd1306</a>
+          <p>Lightweight OLED SSD1306 driver, Arduino Library Manager.</p>
+        </div>
+        <div class="project-block">
+          <a href="https://github.com/dwan6767/1-bit-computer">1-bit CPU</a>
+          <p>CPU built from transistors and diode ROM.</p>
+        </div>
+        <div class="project-block">
+          <a href="#">Spectrogram TX/RX</a>
+          <p>Encode images into audio and TX over 433 MHz.</p>
+        </div>
+        <div class="project-block">
+          <a href="https://github.com/Anurag369-create/QuadCopter?tab=readme-ov-file">Quadcopter</a>
+          <p>Teensy + FS-i6 with PPM (ongoing).</p>
+        </div>
+      </div>
+    </div>
+  </main>
 </body>
 </html>
+
