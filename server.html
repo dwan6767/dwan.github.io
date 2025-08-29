@@ -5,100 +5,107 @@
   <title>IoT Server Registry</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #eee;
       margin: 0;
-      padding: 20px;
+      background-color: #000; /* black background */
+      font-family: "Press Start 2P", monospace;
+      color: white;
     }
-    h1 { color: #66ccff; }
-    .server-list {
+
+    header {
+      background-color: #111;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 4px solid red;
+    }
+
+    header h1 {
+      color: gold;
+      font-size: 22px;
+      text-shadow: 2px 2px blue;
+    }
+
+    .container {
+      padding: 20px;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 15px;
-      margin-top: 20px;
     }
-    .server {
-      background: #222;
-      border: 2px solid #444;
-      padding: 12px;
-      border-radius: 8px;
-      text-align: center;
-    }
-    .server a {
-      color: #ffcc00;
-      font-weight: bold;
-      text-decoration: none;
-    }
-    .server a:hover { color: #ff4444; }
 
-    .add-form {
-      background: #1a1a1a;
-      border: 2px solid #444;
+    .server-block {
+      background: #111;
+      border: 3px solid red;
+      box-shadow: 4px 4px 0 blue;
       padding: 15px;
+      text-align: center;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .server-block:hover {
+      transform: scale(1.05);
+      background: #222;
+    }
+
+    .server-block a {
+      display: block;
+      text-decoration: none;
+      color: gold;
+      margin-top: 10px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 12px;
+      border-top: 2px solid red;
       margin-top: 20px;
-      border-radius: 8px;
     }
-    .add-form input {
-      padding: 6px;
-      margin: 5px;
-      border-radius: 4px;
-      border: 1px solid #555;
-      background: #000;
-      color: #eee;
-    }
-    .add-form button {
-      padding: 6px 12px;
-      background: #66ccff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .add-form button:hover { background: #ff4444; }
   </style>
+  <!-- Pixel font (Minecraft style) -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>IoT Server Registry</h1>
-  <p>Pick a server from the registry or register your own:</p>
+  <header>
+    <h1>⚡ IoT Server Registry ⚡</h1>
+    <p style="color: lightgray;">Tinkerer & Explorer: DWAN</p>
+  </header>
 
-  <div class="server-list" id="servers">
-    <div class="server">
-      <a href="https://dd89d6ace634.ngrok-free.app" target="_blank">
-        ESP32 at DWAN's Home
-      </a>
-    </div>
-    <div class="server">
-      <a href="https://example2.ngrok-free.app" target="_blank">
-        Friend’s ESP Weather Station
-      </a>
-    </div>
+  <div class="container" id="servers">
+    <p style="grid-column: 1 / -1; text-align: center;">Loading servers...</p>
   </div>
 
-  <div class="add-form">
-    <h2>Register a New Server</h2>
-    <input type="text" id="name" placeholder="Server Name" />
-    <input type="url" id="url" placeholder="Server URL (https://...)" />
-    <button onclick="addServer()">Add</button>
-  </div>
+  <footer>
+    <p>Powered by JSONBin.io | Minecraft-style Portfolio</p>
+  </footer>
 
   <script>
-    function addServer() {
-      const name = document.getElementById("name").value;
-      const url = document.getElementById("url").value;
+    async function loadServers() {
+      try {
+        const res = await fetch("https://api.jsonbin.io/v3/b/<your-bin-id>/latest");
+        const data = await res.json();
+        const servers = data.record;
+        const container = document.getElementById("servers");
+        container.innerHTML = "";
 
-      if (!name || !url) return alert("Please enter both name and URL.");
+        if (servers.length === 0) {
+          container.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>No servers registered yet ⚡</p>";
+          return;
+        }
 
-      const container = document.getElementById("servers");
-      const div = document.createElement("div");
-      div.className = "server";
-      div.innerHTML = `<a href="${url}" target="_blank">${name}</a>`;
-      container.appendChild(div);
-
-      // reset inputs
-      document.getElementById("name").value = "";
-      document.getElementById("url").value = "";
+        servers.forEach(s => {
+          const block = document.createElement("div");
+          block.className = "server-block";
+          block.innerHTML = `
+            <h3>${s.name}</h3>
+            <a href="${s.url}" target="_blank">Visit Server</a>
+          `;
+          container.appendChild(block);
+        });
+      } catch (err) {
+        document.getElementById("servers").innerHTML = "<p style='color:red;'>Error loading servers ⚠️</p>";
+      }
     }
+
+    loadServers();
   </script>
 </body>
 </html>
