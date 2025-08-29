@@ -5,15 +5,15 @@
   <title>IoT Server Registry</title>
   <style>
     body {
-      font-family: 'Press Start 2P', cursive;
-      background-color: black;
-      color: white;
+      font-family: Arial, sans-serif;
+      background-color: #000; /* black */
+      color: #eee; /* slight white */
       text-align: center;
       padding: 20px;
     }
     h1 {
       color: gold;
-      text-shadow: 2px 2px red;
+      text-shadow: 2px 2px 5px red;
     }
     .server-list {
       display: grid;
@@ -23,40 +23,48 @@
     }
     .server-block {
       background: #111;
-      border: 2px solid red;
-      padding: 10px;
-      border-radius: 6px;
-      box-shadow: 0px 0px 10px blue;
+      border: 2px solid #d62828; /* medium red */
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0px 0px 10px #0077b6; /* blue glow */
     }
     .server-block a {
       color: gold;
+      font-weight: bold;
       text-decoration: none;
     }
     .server-block a:hover {
       text-decoration: underline;
+      color: #ffb703;
     }
     .form-box {
-      margin-top: 30px;
+      margin-top: 40px;
       background: #111;
       padding: 20px;
-      border: 2px solid blue;
+      border: 2px solid #0077b6; /* blue */
       border-radius: 8px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
     }
     input {
-      margin: 5px;
-      padding: 8px;
-      border: 2px solid red;
-      border-radius: 4px;
+      margin: 8px;
+      padding: 10px;
+      border: 2px solid #d62828;
+      border-radius: 5px;
       background: black;
       color: white;
+      width: 80%;
     }
     button {
-      background: red;
+      background: #d62828; /* red */
       color: white;
-      padding: 8px 16px;
+      padding: 10px 20px;
       border: none;
+      border-radius: 5px;
       cursor: pointer;
       font-weight: bold;
+      margin-top: 10px;
     }
     button:hover {
       background: gold;
@@ -65,8 +73,8 @@
   </style>
 </head>
 <body>
-  <h1>⚡ IoT Server Registry ⚡</h1>
-  <p>Find and register live ESP / IoT servers here</p>
+  <h1> IoT Server Registry </h1>
+  <p>Find and register IoT servers here</p>
 
   <div class="server-list" id="serverList"></div>
 
@@ -74,12 +82,13 @@
     <h2>Add Your Server</h2>
     <input type="text" id="serverName" placeholder="Server Name">
     <input type="text" id="serverUrl" placeholder="Server URL (http://...)">
+    <br>
     <button onclick="addServer()">Register</button>
   </div>
 
   <script>
     const BIN_ID = "68b15e09ae596e708fdacb56";
-    const API_KEY = "$2a$10$6UokeWb8j9s1LrbmepLbCuFa26DT3xZ2r2cQvPK8/fIw9pl0EDW1i"; // create in dashboard → API Keys
+    const API_KEY = "$2a$10$6UokeWb8j9s1LrbmepLbCuFa26DT3xZ2r2cQvPK8/fIw9pl0EDW1i"; // your JSONBin Master Key
     const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
     async function fetchServers() {
