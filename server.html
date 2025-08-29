@@ -5,107 +5,140 @@
   <title>IoT Server Registry</title>
   <style>
     body {
-      margin: 0;
-      background-color: #000; /* black background */
-      font-family: "Press Start 2P", monospace;
+      font-family: 'Press Start 2P', cursive;
+      background-color: black;
       color: white;
-    }
-
-    header {
-      background-color: #111;
-      padding: 20px;
       text-align: center;
-      border-bottom: 4px solid red;
-    }
-
-    header h1 {
-      color: gold;
-      font-size: 22px;
-      text-shadow: 2px 2px blue;
-    }
-
-    .container {
       padding: 20px;
+    }
+    h1 {
+      color: gold;
+      text-shadow: 2px 2px red;
+    }
+    .server-list {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 15px;
-    }
-
-    .server-block {
-      background: #111;
-      border: 3px solid red;
-      box-shadow: 4px 4px 0 blue;
-      padding: 15px;
-      text-align: center;
-      transition: transform 0.2s ease-in-out;
-    }
-
-    .server-block:hover {
-      transform: scale(1.05);
-      background: #222;
-    }
-
-    .server-block a {
-      display: block;
-      text-decoration: none;
-      color: gold;
-      margin-top: 10px;
-    }
-
-    footer {
-      text-align: center;
-      padding: 15px;
-      font-size: 12px;
-      border-top: 2px solid red;
       margin-top: 20px;
     }
+    .server-block {
+      background: #111;
+      border: 2px solid red;
+      padding: 10px;
+      border-radius: 6px;
+      box-shadow: 0px 0px 10px blue;
+    }
+    .server-block a {
+      color: gold;
+      text-decoration: none;
+    }
+    .server-block a:hover {
+      text-decoration: underline;
+    }
+    .form-box {
+      margin-top: 30px;
+      background: #111;
+      padding: 20px;
+      border: 2px solid blue;
+      border-radius: 8px;
+    }
+    input {
+      margin: 5px;
+      padding: 8px;
+      border: 2px solid red;
+      border-radius: 4px;
+      background: black;
+      color: white;
+    }
+    button {
+      background: red;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background: gold;
+      color: black;
+    }
   </style>
-  <!-- Pixel font (Minecraft style) -->
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-  <header>
-    <h1>⚡ IoT Server Registry ⚡</h1>
-    <p style="color: lightgray;">Tinkerer & Explorer: DWAN</p>
-  </header>
+  <h1>⚡ IoT Server Registry ⚡</h1>
+  <p>Find and register live ESP / IoT servers here</p>
 
-  <div class="container" id="servers">
-    <p style="grid-column: 1 / -1; text-align: center;">Loading servers...</p>
+  <div class="server-list" id="serverList"></div>
+
+  <div class="form-box">
+    <h2>Add Your Server</h2>
+    <input type="text" id="serverName" placeholder="Server Name">
+    <input type="text" id="serverUrl" placeholder="Server URL (http://...)">
+    <button onclick="addServer()">Register</button>
   </div>
 
-  <footer>
-    <p>Powered by JSONBin.io | Minecraft-style Portfolio</p>
-  </footer>
-
   <script>
-    async function loadServers() {
+    const BIN_ID = "68b15e09ae596e708fdacb56";
+    const API_KEY = "$2a$10$6UokeWb8j9s1LrbmepLbCuFa26DT3xZ2r2cQvPK8/fIw9pl0EDW1i"; // create in dashboard → API Keys
+    const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+    async function fetchServers() {
       try {
-        const res = await fetch("https://api.jsonbin.io/v3/b/<your-bin-id>/latest");
+        const res = await fetch(`${API_URL}/latest?meta=false`);
         const data = await res.json();
-        const servers = data.record;
-        const container = document.getElementById("servers");
-        container.innerHTML = "";
-
-        if (servers.length === 0) {
-          container.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>No servers registered yet ⚡</p>";
-          return;
-        }
-
-        servers.forEach(s => {
-          const block = document.createElement("div");
-          block.className = "server-block";
-          block.innerHTML = `
-            <h3>${s.name}</h3>
-            <a href="${s.url}" target="_blank">Visit Server</a>
-          `;
-          container.appendChild(block);
-        });
+        displayServers(data);
       } catch (err) {
-        document.getElementById("servers").innerHTML = "<p style='color:red;'>Error loading servers ⚠️</p>";
+        console.error("Error fetching servers:", err);
       }
     }
 
-    loadServers();
+    function displayServers(servers) {
+      const list = document.getElementById("serverList");
+      list.innerHTML = "";
+      servers.forEach(s => {
+        const div = document.createElement("div");
+        div.className = "server-block";
+        div.innerHTML = `<strong>${s.name}</strong><br>
+                         <a href="${s.url}" target="_blank">${s.url}</a>`;
+        list.appendChild(div);
+      });
+    }
+
+    async function addServer() {
+      const name = document.getElementById("serverName").value.trim();
+      const url = document.getElementById("serverUrl").value.trim();
+      if (!name || !url) {
+        alert("Please fill in both fields!");
+        return;
+      }
+
+      try {
+        // get current servers
+        const res = await fetch(`${API_URL}/latest?meta=false`);
+        let servers = await res.json();
+
+        // add new one
+        servers.push({ name, url });
+
+        // update bin
+        await fetch(API_URL, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Master-Key": API_KEY
+          },
+          body: JSON.stringify(servers)
+        });
+
+        fetchServers();
+        document.getElementById("serverName").value = "";
+        document.getElementById("serverUrl").value = "";
+      } catch (err) {
+        console.error("Error adding server:", err);
+      }
+    }
+
+    fetchServers();
   </script>
 </body>
 </html>
